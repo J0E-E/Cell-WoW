@@ -1,6 +1,6 @@
-## Interface: 120100
+## Interface: 120105
 ## Title: Cell
-## Version: r280-beta
+## Version: r280-beta-local
 ## Author: enderneko
 ## X-Flavor: Mainline
 ## SavedVariables: CellDB, CellDBBackup

@@ -4587,5 +4587,10 @@ function CellUnitButton_OnLoad(button)
     button:HookScript("OnLeave", UnitButton_OnLeave) -- SecureHandlerEnterLeaveTemplate
     button:SetScript("OnUpdate", UnitButton_OnUpdate)
     button:SetScript("OnEvent", UnitButton_OnEvent)
-    button:RegisterForClicks("AnyDown")
+    -- see F.UpdateClickCastings: "Cast on release" option
+    if Cell.vars.clickCastings and Cell.vars.clickCastings["castOnRelease"] then
+        button:RegisterForClicks("AnyUp")
+    else
+        button:RegisterForClicks("AnyDown")
+    end
 end

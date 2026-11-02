@@ -653,8 +653,12 @@ function F.UpdateClickCastings(noReload, onlyqueued)
     --     end
     -- end
 
+    local clickMode = Cell.vars.clickCastings["castOnRelease"] and "AnyUp" or "AnyDown"
     F.IterateAllUnitButtons(function(b)
         F.UpdateClickCastOnFrame(b, snippet)
+        -- cast on release lets ground-targeted spells keep their placement reticle
+        -- (a right-button release would otherwise cancel it immediately)
+        b:RegisterForClicks(clickMode)
     end, false, true)
 
     previousClickCastings = F.Copy(clickCastingTable)
@@ -669,14 +673,23 @@ Cell.RegisterCallback("UpdateQueuedClickCastings", "UpdateQueuedClickCastings", 
 -------------------------------------------------
 -- profiles dropdown
 -------------------------------------------------
-local profileDropdown
+local profileDropdown, castOnReleaseCB
 
 local function CreateProfilePane()
     local profilePane = Cell.CreateTitledPane(clickCastingsTab, L["Profiles"], 422, 50)
     profilePane:SetPoint("TOPLEFT", 5, -5)
 
-    profileDropdown = Cell.CreateDropdown(profilePane, 412)
+    profileDropdown = Cell.CreateDropdown(profilePane, 290)
     profileDropdown:SetPoint("TOPLEFT", profilePane, "TOPLEFT", 5, -27)
+
+    castOnReleaseCB = Cell.CreateCheckButton(profilePane, L["Cast on release"], function(checked)
+        Cell.vars.clickCastings["castOnRelease"] = checked
+        Cell.Fire("UpdateClickCastings", true)
+    end)
+    castOnReleaseCB:SetPoint("LEFT", profileDropdown, "RIGHT", 10, 0)
+    Cell.SetTooltips(castOnReleaseCB, "ANCHOR_TOPLEFT", 0, 2, L["Cast on release"],
+        L["Fire click-castings when the mouse button is released instead of pressed."],
+        L["Needed for ground-targeted spells (totems, Healing Rain) to show their placement reticle when clicked on other players."])
 
     profileDropdown:SetItems({
         {
@@ -1659,6 +1672,7 @@ end
 
 LoadProfile = function(isCommon)
     targetingDropdown:SetSelectedValue(alwaysTargeting)
+    castOnReleaseCB:SetChecked(Cell.vars.clickCastings["castOnRelease"] and true or false)
     UpdateCurrentText(isCommon)
 
     last = nil
